@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// User — Primary account + optional Strava link
+// ─────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+
+  // Strava integration (linked, not primary auth)
+  strava_access_token     String?
+  strava_refresh_token    String?
+  strava_token_expires_at Int?
+  strava_athlete_id       String?
+
+  // User preferences
+  weeklyDistanceGoal Float? @default(0)
+
+  // Relations
+  habits          Habit[]
+  habitLogs       HabitLog[]
+  stravaActivities StravaActivity[]
+}
+
+// ─────────────────────────────────────────────
+// Habit — A trackable habit belonging to a user
+// ─────────────────────────────────────────────
+
+model Habit {
+  id               String   @id @default(cuid())
+  userId           String
+  name             String
+  emoji            String   @default("✅")
+  color            String   @default("#2dd4bf") // teal accent
+  targetDaysPerWeek Int     @default(7)
+  createdAt        DateTime @default(now())
+  isArchived       Boolean  @default(false)
+
+  // Relations
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs HabitLog[]
+
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────
+// HabitLog — A single completion of a habit
+// ─────────────────────────────────────────────
+
+enum LogSource {
+  MANUAL
+  STRAVA
+}
+
+model HabitLog {
+  id          String    @id @default(cuid())
+  habitId     String
+  userId      String
+  completedAt DateTime  @db.Date
+  note        String?
+  source      LogSource @default(MANUAL)
+
+  // Relations
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate logs for same habit on same day
+  @@unique([habitId, completedAt])
+  @@index([userId])
+  @@index([habitId])
+  @@index([completedAt])
+}
+
+// ─────────────────────────────────────────────
+// StravaActivity — Cached Strava activity data
+// ─────────────────────────────────────────────
+
+model StravaActivity {
+  id            String   @id @default(cuid())
+  userId        String
+  stravaId      String   @unique
+  name          String
+  type          String
+  distance      Float    // meters
+  movingTime    Int      // seconds
+  elevationGain Float    @default(0)
+  startDate     DateTime
+  polyline      String?  // encoded polyline for map
+  cachedAt      DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([startDate])
+}
