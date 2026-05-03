@@ -19,15 +19,15 @@ export default function StravaPage() {
       const userRes = await fetch("/api/user");
       if (userRes.ok) {
         const userData = await userRes.json();
-        setIsConnected(!!userData.user.strava_access_token);
+        setIsConnected(!!userData.strava_athlete_id);
       }
 
       // Fetch activities from our DB (cached)
       const statsRes = await fetch("/api/stats");
       if (statsRes.ok) {
         const statsData = await statsRes.json();
-        if (statsData.recentActivities) {
-          setActivities(statsData.recentActivities);
+        if (statsData.strava?.recentActivities) {
+          setActivities(statsData.strava.recentActivities);
         }
       }
     } catch (e) {
@@ -102,14 +102,7 @@ export default function StravaPage() {
       ) : (
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {activities.map((activity: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
-            <div key={activity.id} className="space-y-3">
-              <ActivityCard activity={activity} />
-              {activity.summary_polyline && (
-                <div className="h-48 rounded-xl overflow-hidden border border-border">
-                  <ActivityMap summaryPolyline={activity.summary_polyline} />
-                </div>
-              )}
-            </div>
+            <ActivityCard key={activity.id} activity={activity} />
           ))}
         </div>
       )}

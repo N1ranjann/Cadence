@@ -59,6 +59,7 @@ export async function GET() {
         weeklyDistanceKm: parseFloat(weeklyDistanceKm.toFixed(1)),
         weeklyGoalKm: user?.weeklyDistanceGoal || 0,
         activityCount: recentActivities.length,
+        recentActivities, // Added for the Strava page
       },
     });
   } catch (error) {

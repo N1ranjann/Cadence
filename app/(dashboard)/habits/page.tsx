@@ -15,7 +15,7 @@ export default function HabitsPage() {
       const res = await fetch("/api/habits");
       if (res.ok) {
         const data = await res.json();
-        setHabits(data.habits || []);
+        setHabits(data || []);
       }
     } catch (e) {
       console.error(e);
