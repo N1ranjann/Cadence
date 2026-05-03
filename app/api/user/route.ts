@@ -27,6 +27,7 @@ export async function PATCH(req: Request) {
         name: true,
         email: true,
         weeklyDistanceGoal: true,
+        strava_athlete_id: true,
       },
     });
 

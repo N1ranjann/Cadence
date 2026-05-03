@@ -13,25 +13,33 @@ export default function StravaPage() {
 
   const fetchStatusAndActivities = async () => {
     try {
+      console.log("Fetching Strava status and activities...");
       setLoading(true);
       // Fetch connection status
       const userRes = await fetch("/api/user");
       if (userRes.ok) {
         const userData = await userRes.json();
+        console.log("User data fetched:", userData);
         setIsConnected(!!userData.strava_athlete_id);
+      } else {
+        console.warn("Failed to fetch user status", userRes.status);
       }
 
       // Fetch activities from our DB (cached)
       const statsRes = await fetch("/api/stats");
       if (statsRes.ok) {
         const statsData = await statsRes.json();
+        console.log("Stats data fetched:", statsData);
         if (statsData.strava?.recentActivities) {
           setActivities(statsData.strava.recentActivities);
         }
+      } else {
+        console.warn("Failed to fetch stats", statsRes.status);
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error in fetchStatusAndActivities:", e);
     } finally {
+      console.log("Setting loading to false");
       setLoading(false);
     }
   };

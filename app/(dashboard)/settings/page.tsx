@@ -12,7 +12,7 @@ export default function SettingsPage() {
   useEffect(() => {
     fetch("/api/user")
       .then((res) => res.json())
-      .then((data) => setUser(data.user))
+      .then((data) => setUser(data))
       .catch(console.error);
   }, []);
 
@@ -22,7 +22,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/strava/disconnect", { method: "POST" });
       if (res.ok) {
         toast.success("Strava disconnected");
-        setUser({ ...user, strava_access_token: null });
+        setUser({ ...user, strava_athlete_id: null });
       }
     } catch {
       toast.error("Failed to disconnect Strava");
@@ -57,10 +57,10 @@ export default function SettingsPage() {
                 Strava Connection
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {user?.strava_access_token ? "Your account is connected to Strava." : "Connect to automatically sync your runs."}
+                {user?.strava_athlete_id ? "Your account is connected to Strava." : "Connect to automatically sync your runs."}
               </p>
             </div>
-            {user?.strava_access_token ? (
+            {user?.strava_athlete_id ? (
               <Button variant="destructive" onClick={handleDisconnectStrava} className="gap-2">
                 <Trash2 className="size-4" />
                 Disconnect
