@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { StravaActivityCard as ActivityCard } from "@/components/strava/strava-activity-card";
-import { ActivityMap } from "@/components/strava/activity-map";
 import { Button } from "@/components/ui/button";
 import { Activity, RefreshCcw } from "lucide-react";
 
